@@ -1,0 +1,30 @@
+name: Daily KEITI 게시물 확인
+
+on:
+  schedule:
+    - cron: '15 15 * * *'  # 매일 00:15 (KST 기준, UTC+9 → UTC 기준 15시 15분)
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 저장소 체크아웃
+      uses: actions/checkout@v3
+
+    - name: Python 설치
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: 필요한 패키지 설치
+      run: |
+        pip install requests beautifulsoup4
+
+    - name: KEITI 공지사항 확인 및 이메일 발송
+      env:
+        EMAIL_USER: ${{ secrets.EMAIL_USER }}
+        EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+        EMAIL_TO: ${{ secrets.EMAIL_TO }}
+      run: python keiti_notice_mailer.py
